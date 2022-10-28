@@ -1,0 +1,105 @@
+-----------elemento.h----------------------------------------------------------------------------------------
+
+#ifndef ELEMENTO_H_INCLUDED
+#define ELEMENTO_H_INCLUDED
+
+struct ElementoE;
+
+typedef struct ElementoE * ElementoP;
+
+ElementoP crearElemento(int n, char s[3], char nom[20], char tip[25], int cantNeu);
+
+void mostrarElemento(ElementoP e[], int t);
+
+
+int buscarVacuna(ElementoP e, char busca[20]);
+
+
+
+#endif // ELEMENTO_H_INCLUDED
+
+-----------elemento.c----------------------------------------------------------------------------------------
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include "elemento.h"
+
+struct ElementoE{
+
+   int nroAtom;
+   char sim[10];
+   char nombre[50];
+   char tipo[50];
+   int cantNeutrones;
+
+};
+
+ElementoP crearElemento(int n, char s[3], char nom[20], char tip[25], int cantNeu){
+
+   ElementoP p = malloc(sizeof(struct ElementoE));
+
+   p->nroAtom=n;
+   strcpy(p->sim, s);
+   strcpy(p->nombre, nom);
+   strcpy(p->tipo, tip);
+   p->cantNeutrones=cantNeu;
+
+
+   return p;
+
+};
+
+void mostrarElemento(ElementoP e[], int t){
+
+    for(int i=0; i<t; i++){
+
+        printf("------MUESTRO EL ELEMENTO-------\n");
+        printf("--NUMERO ATOMICO: %d\n", e[i]->cantNeutrones);
+        printf("--SIMBOLO QUIMICO: %s\n", e[i]->sim);
+        printf("--NOMBRE: %s\n", e[i]->nombre);
+        printf("--TIPO: %s\n", e[i]->tipo);
+        printf("--CANTIDAD DE NEUTRONES: %d\n", e[i]->cantNeutrones);
+
+    }
+
+
+};
+
+int buscarVacuna(ElementoP e, char busca[20]){
+
+    int encontrado=0;
+
+      for (int i=0; i<3; i++){
+
+        if (strcmp(e->nombre[i],busca)){
+
+            encontrado++;
+        }
+      }
+
+      return encontrado;
+
+
+};
+
+-----------main.c----------------------------------------------------------------------------------------------
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include "elemento.h"
+
+int main()
+{
+    ElementoP e1=crearElemento(25, "Mn", "Magneso", "Transicion", 30);
+    ElementoP e2=crearElemento(36, "Kp", "Kripton", "Gas Noble", 50);
+    ElementoP e3=crearElemento(11, "Na", "Sodio", "Metal Alcalino", 12);
+
+    ElementoP tabla[3]={e1,e2,e3};
+
+    mostrarElemento(tabla, 3);
+
+    busquedaPorNombre(e1, "Sodio");
+    return 0;
+}
