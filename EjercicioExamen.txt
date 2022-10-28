@@ -1,0 +1,338 @@
+---------main.c----------------------------------------------------------------------------------------------
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include "vehiculo.h"
+#include "pasajero.h"
+
+int main()
+{
+    VehiculoP v1=crearVehiculo();
+    agregarPasajero(v1);
+    agregarPasajero(v1);
+    agregarPasajero(v1);
+
+    mostrarVehiculo(v1);
+
+    printf("\nbuscando Agustin-> %d\n",buscarPorNombre(v1,"Agustin"));
+
+    //guardarPasajero(v1);
+
+    //guardarVehiculo(v1);
+
+    //ordenarPasajeros(v1);
+
+    //mostrarVehiculo(v1);
+
+    //PasajeroMasJoven(v1);
+
+    //mostrarVehiculo(v1);
+
+    //PasajerosP p1=crearPasajero();
+    //mostrarPasajero(p1);
+    return 0;
+}
+
+
+---------vehiculo.h------------------------------------------------------------------------------------------
+
+#ifndef VEHICULO_H_INCLUDED
+#define VEHICULO_H_INCLUDED
+
+struct VehiculoE;
+
+typedef struct VehiculoE * VehiculoP;
+
+VehiculoP crearVehiculo();
+
+void mostrarVehiculo(VehiculoP v);
+
+void agregarPasajero(VehiculoP v);
+
+//void PasajeroMasJoven(VehiculoP v);
+
+void ordenarPasajeros(VehiculoP v);
+
+int buscarPorNombre(VehiculoP v, char busca[20]);
+
+void guardarVehiculo(VehiculoP v);
+
+
+
+#endif // VEHICULO_H_INCLUDED
+
+
+---------vehiculo.c------------------------------------------------------------------------------------------
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#define TAM 5
+#include "vehiculo.h"
+#include "pasajero.h"
+
+struct VehiculoE{
+
+    char marca[20];
+    int anio;
+    char color[20];
+    float promEdad;
+    PasajerosP pasajero[TAM];
+
+
+};
+
+VehiculoP crearVehiculo(){
+
+   VehiculoP v = malloc(sizeof(struct VehiculoE));
+
+   printf("--INGRESE LA MARCA DEL VEHICULO--\n");
+   fflush(stdin);
+   gets(v->marca);
+   printf("--INGRESE EL ANIOO DEL VEHICULO--\n");
+   scanf("%d", &(v->anio));
+   printf("--INGRESE EL COLOR DEL VEHICULO--\n");
+   fflush(stdin);
+   gets(v->color);
+   printf("--INGRESE EL PROMEDIO DE EDAD DE LOS PASAJEROS--\n");
+   scanf("%f", &(v->promEdad));
+
+   for(int i=0; i<TAM; i++){
+
+    v->pasajero[i]=crearPasajeroSinDatos();
+   }
+
+   return v;
+
+
+
+};
+
+void mostrarVehiculo(VehiculoP v){
+
+    printf("----MARCA: %s\n", v->marca);
+    printf("----ANIO: %d\n", v->anio);
+    printf("----COLOR: %s\n", v->color);
+    printf("----PROMEDIO DE EDAD: %f\n", v->promEdad);
+
+    for(int i=0; i<TAM; i++){
+
+        mostrarPasajero(v->pasajero[i]);
+    }
+
+
+};
+
+int busqueda(VehiculoP v, int busco){
+
+    int pos=-1;//no hay mas espacio
+
+    for(int i=0; i<TAM; i++){
+
+        if(getEdad(v->pasajero[i])==busco){
+
+            pos=i;
+            i= TAM+1;
+        }
+    }
+
+    return pos;
+
+};
+
+void agregarPasajero(VehiculoP v){
+
+    int posVacia=busqueda(v, -1);
+
+    if(posVacia != -1){
+
+        v->pasajero[posVacia]=crearPasajero();
+    }
+
+};
+
+ /*void PasajeroMasJoven(VehiculoP v){
+
+    PasajerosP Edades[TAM]=crearPasajero();
+
+    int edadMenor=Edades[0];
+
+     for(int i=0; i<TAM; i++){
+
+        for(int j=0; j<TAM-1; j++){
+
+            if(getEdad(v->pasajero[j]) < getEdad(v->pasajero[j+1])){
+
+                //aux=v->pasajero[j];
+            }
+        }
+     }
+
+
+};
+
+*/
+void ordenarPasajeros(VehiculoP v){
+
+    PasajerosP aux;
+
+     for(int i=0; i<TAM; i++){
+
+        for(int j=0; j<TAM-1; j++){
+
+            if(strcmp(getNombre(v->pasajero[j]) , getNombre(v->pasajero[j+1]))==1){
+
+                aux=v->pasajero[j];
+                v->pasajero[j]=v->pasajero[j+1];
+                v->pasajero[j+1]=aux;
+            }
+        }
+     }
+
+
+};
+
+int buscarPorNombre(VehiculoP v, char busca[20]){
+
+   int pos=-1;
+
+      for (int i=0; i<TAM; i++){
+
+        if (strcmp(getNombre(v->pasajero[i]),busca)==0){
+
+            printf("-----Pasajero Encontrado-------");
+
+            printf("--NOMBRE: %s", getNombre(v->pasajero[i]));
+            printf("--EDAD: %d", getEdad(v->pasajero[i]));
+            printf("--POSICION: %s", getPos(v->pasajero[i]));
+
+            pos=i;
+            i=TAM+1;
+        }
+      }
+
+      return pos;
+
+};
+
+
+
+void guardarVehiculo(VehiculoP v){
+    FILE*archivo=fopen("vehiculo.txt","w");//writing. //escribir
+//delimitadores
+    fprintf(archivo,"%s;%d;%s;%f", v->marca, v->anio, v->color, v->promEdad);
+    for(int i=0;i<TAM;i++){
+        guardarPasajero(v->pasajero[i]);
+    }
+    fclose(archivo);
+};
+
+
+---------pasajeros.h-----------------------------------------------------------------------------------------
+
+#ifndef PASAJEROS_H_INCLUDED
+#define PASAJEROS_H_INCLUDED
+
+struct PasajerosE;
+
+typedef struct PasajerosE * PasajerosP;
+
+PasajerosP crearPasajero();
+void mostrarPasajero(PasajerosP p);
+
+PasajerosP crearPasajeroSinDatos();
+
+int getEdad(PasajerosP p);
+
+char * getNombre(PasajerosP p);
+
+char * getPos(PasajerosP p);
+
+void guardarPasajero(PasajerosP p);
+
+
+
+#endif // PASAJEROS_H_INCLUDED
+
+
+---------pasajeros.c-----------------------------------------------------------------------------------------
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include "pasajero.h"
+
+struct PasajerosE{
+
+   char nombre[40];
+   int edad;
+   char posicion[20];  //puede ser conductor, acompañante o atras
+
+};
+
+PasajerosP crearPasajero(){
+
+   PasajerosP p = malloc(sizeof(struct PasajerosE));
+
+   printf("--INGRESE EL NOMBRE DEL PASAJERO--\n");
+   fflush(stdin);
+   gets(p->nombre);
+   printf("--INGRESE LA EDAD DEL PASAJERO--\n");
+   scanf("%d", &(p->edad));
+   printf("--INGRESE LA POSICION QUE OCUPA EN EL AUTO--\n");
+   fflush(stdin);
+   gets(p->posicion);
+
+   return p;
+
+};
+void mostrarPasajero(PasajerosP p){
+
+    if(p->edad != -1){
+
+        printf("----MUESTRO AL PASAJERO-----\n");
+
+        printf("--NOMBRE :%s --EDAD: %d --POSICION: %s\n", p->nombre, p->edad, p->posicion);
+    }
+
+};
+
+PasajerosP crearPasajeroSinDatos(){
+
+   PasajerosP p = malloc(sizeof(struct PasajerosE));
+
+   strcpy(p->nombre, "NADIE");
+   p->edad=-1;
+   strcpy(p->posicion, "NINGUNA");
+
+   return p;
+
+};
+
+int getEdad(PasajerosP p){
+
+   return p->edad;
+
+}
+
+char * getNombre(PasajerosP p){
+
+     return p->nombre;
+
+};
+
+char * getPos(PasajerosP p){
+
+     return p->posicion;
+};
+
+void guardarPasajero(PasajerosP p){
+    FILE*archivo;
+    archivo=fopen("pasajero.txt","a");
+    if(p->edad != -1){
+
+         fprintf(archivo,"%s;%d;%s\n",p->nombre, p->edad, p->posicion);
+    }
+    fclose(archivo);
+};

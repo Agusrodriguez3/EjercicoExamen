@@ -1,0 +1,205 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+#define DOSIS 5
+
+
+struct Vacuna{
+
+    char nombre[20];
+    char lote[20]; //codigo aleatorio alfanumerico
+
+};
+
+struct Ciudadano{
+
+   char nombreYapellido[30];
+   int nroCiudadano; //entero aleatorio de 6 cifras
+   struct Vacuna vacunas[DOSIS];
+
+};
+//funciones de la vacuna
+struct Vacuna cargarVacuna();
+void mostrarVacuna(struct Vacuna v);
+//funciones del ciudadano
+struct Ciudadano cargarCiudadano();
+void mostrarCiudadano(struct Ciudadano c);
+int buscarVacuna(struct Ciudadano c, char busca[20]);
+//archivos
+void guardarvacuna (struct Vacuna v);
+void guardarciudadano(struct Ciudadano c);
+struct Ciudadano textoatransformarciudadano(char c[50]);
+struct Ciudadano textoatransformarciudadano(char c[50]);
+struct Vacuna textoatransformarvacuna(char c[50]);
+
+int main()
+{
+     srand (time(0));
+//struct Ciudadano c1=cargarCiudadano();
+//struct Ciudadano c1=leerciudadano();
+//mostrarCiudadano(c1);
+//printf("\nbuscando moderna-> %d",buscarVacuna(c1,"moderna"));
+//mostrarCiudadano(c1);
+//struct Vacuna v=cargarVacuna();
+//mostrarCiudadano(c1);
+//buscarVacuna(c1, "moderna");
+return 0;
+}
+
+
+struct Vacuna cargarVacuna(){
+
+struct Vacuna v;
+
+    printf ("\ningrese el nombre de la vacuna:\n");
+    fflush(stdin);
+    gets(v.nombre);
+    char lotesDiccionario[]="abcdefghijklmnñopqrstuvwxyz0123456789";
+    int elementosDiccionario=strlen(lotesDiccionario);
+    for(int i=0;i<9;i++){
+    int aleatorio= rand ()%elementosDiccionario;
+        v.lote[i]=lotesDiccionario[aleatorio];
+    }
+
+    return v;
+
+
+};
+
+void mostrarVacuna(struct Vacuna v){
+
+     printf("mostramos las vacunas\n");
+     printf("Nombre de la vacuna: %s\n", v.nombre);
+     printf("Nombre del lote: %s\n", v.lote);
+
+};
+
+struct Ciudadano cargarCiudadano(){
+
+    struct Ciudadano c;
+    printf ("\ningresar nombre y apellido del ciudadano:\n") ;
+    fflush(stdin);
+    gets(c.nombreYapellido);
+    c.nroCiudadano=100000+rand()%900000;
+    for(int i=0;i<DOSIS;i++){
+       c.vacunas[i]=cargarVacuna();
+    }
+
+return c;
+
+
+};
+
+
+void mostrarCiudadano(struct Ciudadano c){
+
+     printf("muestro el ciudadano\n");
+     printf("Nombre y apellido: %s\n", c.nombreYapellido);
+     printf("Numero de ciudadano: %d\n", c.nroCiudadano);
+     for(int i=0;i<DOSIS;i++){
+        mostrarVacuna((c.vacunas)[i]);
+    }
+
+};
+
+int buscarVacuna(struct Ciudadano c, char busca[20]){
+
+    int encontrado=0;
+
+      for (int i=0; i<DOSIS; i++){
+
+        if (strcmp((c.vacunas[i]).nombre,busca)){
+
+            encontrado++;
+        }
+      }
+
+      return encontrado;
+
+
+};
+
+
+void guardarvacuna (struct Vacuna v){
+    FILE*archivo;
+    archivo=fopen("vacuna.txt","a");
+    fprintf(archivo,"%s;%s\n",v.nombre,v.lote);
+    fclose(archivo);
+};
+//generar txt vacuna manualmente
+void guardarciudadano(struct Ciudadano c){
+    FILE*archivo=fopen("ciudadano.txt","w");//writing. //escribir
+//delimitadores
+    fprintf(archivo,"%s;%d",c.nombreYapellido,c.nroCiudadano);
+    for(int i=0;i<DOSIS;i++){
+        guardarvacuna(c.vacunas[i]);
+    }
+    fclose(archivo);
+};
+/// a modificar xq no muestra nada en pantalla
+struct Ciudadano leerciudadano(){
+    struct Ciudadano c;
+    FILE * archivo=fopen("ciudadano.txt","r");
+    while(!feof(archivo)){
+        char datos[50]=" ";
+        fgets(datos,50,archivo);
+        c= textoatransformarciudadano(datos);
+    }
+    fclose(archivo);
+//recuperamos vacunas
+    FILE * archivoV=fopen("vacuna.txt","r");
+    int i=0;
+    while(!feof(archivoV)){
+        char datos[50]="";
+        fgets(datos,50,archivoV);
+        c.vacunas[i]=textoatransformarvacuna(datos);
+        i++;
+    }
+    fclose(archivoV);
+    return c;
+};
+struct Ciudadano textoatransformarciudadano(char c[50]){
+    struct Ciudadano ciu;
+    int posdeldeli=-1;
+    for(int i=0;i<50;i++){
+        if(c[i]==';'){
+        posdeldeli=i;
+        i=100;
+        }
+    }
+    char nombreaux[30]=" ";
+    char cdeux[11]=" ";
+    for(int i=0;i<posdeldeli;i++){
+        nombreaux[i]=c[i];
+    }
+    for(int i=posdeldeli+1;i<posdeldeli+7;i++){
+        cdeux[i-posdeldeli-1]=c[i];
+    }
+//guardar en struct
+    strcpy(ciu.nombreYapellido,nombreaux);
+    ciu.nroCiudadano= atoi(cdeux); //casteo char a int
+    return ciu;
+};
+struct Vacuna textoatransformarvacuna(char c[50]){
+    struct Vacuna v;
+    int posdel=-1;
+    int posdeldeli=-1;
+    for(int i=0;i<50;i++){
+        if(c[i]==';'){
+            posdeldeli=i;
+            i=100;
+        }
+    }
+    char nombreaux[30]=" ";
+    char cdeux[11]=" ";
+    for(int i=0;i<posdeldeli;i++){
+        nombreaux[i]=c[i];
+    }
+    for(int i=posdeldeli+1;i<posdeldeli+7;i++){
+        cdeux[i-posdeldeli-1]=c[i];
+    }
+//guardar en struct
+    strcpy(v.lote,cdeux);
+    strcpy(v.nombre,nombreaux);
+    return v;
+};

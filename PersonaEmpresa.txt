@@ -1,0 +1,197 @@
+---------main.c--------------------------------------------------------------------------------
+#include <stdio.h>
+#include <stdlib.h>
+#include "persona.h"
+#include "empresa.h"
+
+int main()
+{
+    Persona p1=cargarPersona("Agustin", 44708630 , 1.87);
+    mostrarPersona(p1);
+    return 0;
+}
+
+--------persona.h-------------------------------------------------------------------------------
+
+#ifndef PERSONA_H_INCLUDED
+#define PERSONA_H_INCLUDED
+
+struct PersonaEstructura;
+
+typedef struct PersonaEstructura * Persona;
+
+void mostrarPersona(Persona p);
+Persona cargarPersona(char n[20], int d, float a);
+
+void destruirPersona(Persona p);
+
+//geters
+
+int getDNI(Persona p);
+float getAltura(Persona p);
+char * getNombre(Persona p);
+
+//setters
+
+void setDni(Persona p, int d);
+void setAltura(Persona p, float a);
+void setNombre(Persona p, char n[20]);
+
+
+#endif // PERSONA_H_INCLUDED
+
+--------------persona.c--------------------------------------------------------------------
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include "persona.h"
+#include "empresa.h"
+
+struct PersonaEstructura{
+
+    char nombre[20];
+    float altura;
+    int dni;
+    Empresa cv[3];
+
+};
+
+void mostrarPersona(Persona p){
+
+    printf("------Muestro las personas-------\n");
+    printf("NOMBRE: %s\n", p->nombre);
+    printf("ALTURA: %f\n", p->altura);
+    printf("DNI: %d\n", p->dni);
+
+    for(int i=0; i<3; i++){
+        mostrarEmpresa(p->cv[i]);
+    }
+
+};
+
+Persona cargarPersona(char n[20], int d, float a){
+
+    Persona p= malloc(sizeof(struct PersonaEstructura));
+
+    strcpy(p->nombre, n);
+    p->altura=a;
+    p->dni=d;
+
+    char nom[25]="";
+    int anti;
+    char dire[30]="";
+
+    for(int i=0; i<3; i++){
+        printf("--INGRESE EL NOMBRE DE LA EMPRESA --\n", i+1);
+        fflush(stdin);
+        gets(nom);
+        printf("--INGRESE LA ANTIGUEDAD DE LA EMPRESA--\n");
+        scanf("%d",&anti);
+        printf("--INGRESE LA DIRECCION LA EMPRESA--\n");
+        fflush(stdin);
+        gets(dire);
+
+        p->cv[i]=cargarEmpresa(nom, anti, dire);
+
+    }
+
+    return p;
+
+};
+
+void destruirPersona(Persona p){
+
+   free(p);
+};
+
+
+int getDNI(Persona p){
+
+   return p->dni;
+
+};
+
+float getAltura(Persona p){
+
+    return p->altura;
+
+};
+
+char * getNombre(Persona p){
+
+    return p->nombre;
+
+};
+
+void getDni(Persona p, int d){
+
+     p->dni=d;
+
+};
+
+void setAltura(Persona p, float a){
+
+     p->altura=a;
+
+};
+
+void setNombre(Persona p, char n[20]){
+
+    strcpy(p->nombre, n);
+
+};
+
+------------------empresa.h-----------------------------------------------------------------------
+
+#ifndef EMPRESA_H_INCLUDED
+#define EMPRESA_H_INCLUDED
+
+struct EmpresaE;
+
+typedef struct EmpresaE * Empresa;
+
+void mostrarEmpresa(Empresa e);
+Empresa cargarEmpresa(char n[25], int a, char dire[30]);
+
+
+
+#endif // EMPRESA_H_INCLUDED
+
+----------------empresa.c------------------------------------------------------------------------
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include "empresa.h"
+
+struct EmpresaE{
+
+    char nombre[20];
+    int antiguedad;
+    char direccion [30];
+
+};
+
+void mostrarEmpresa(Empresa e){
+
+    printf("----EMPRESA: %s----\n", e->nombre);
+    printf("----ANTIGUEDAD: %d----\n", e->antiguedad);
+    printf("----DIRECCION: %s----\n", e->direccion);
+
+
+
+
+};
+
+Empresa cargarEmpresa(char n[25], int a, char dire[30]){
+
+   Empresa e = malloc(sizeof(struct EmpresaE));
+
+   strcpy(e->nombre, n);
+   e->antiguedad=a;
+   strcpy(e->direccion, dire);
+
+   return e;
+
+};

@@ -1,0 +1,270 @@
+------main.c-----------------------------------------------------------------------------------------
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include "seleccion.h"
+#include "jugador.h"
+
+int main()
+{
+    SeleccionP s1=cargarSeleccion();
+    agregarJugador(s1);
+    agregarJugador(s1);
+
+
+    mostrarSeleccion(s1);
+
+    ordenarJugadores(s1);
+
+    //borrarJugador(s1, 11);
+
+    mostrarSeleccion(s1);
+
+
+    return 0;
+}
+
+-------seleccion.h-----------------------------------------------------------------------------------
+
+#ifndef SELECCION_H_INCLUDED
+#define SELECCION_H_INCLUDED
+
+struct SeleccionE;
+
+typedef struct SeleccionE * SeleccionP;
+
+// PRE: tiene que estar la seleccion construida
+// POS: muestra por pantalla la seleccion
+void mostrarSeleccion(SeleccionP s);
+
+//PRE: tener creada una varibale para guardar el retorno de la funcion
+//POS: me devuelve una seleccion con los jugadores vacios 
+SeleccionP cargarSeleccion();
+
+void agregarJugador(SeleccionP s);
+void borrarJugador(SeleccionP s, int cam);
+
+void ordenarJugadores(SeleccionP s);
+
+void destruirSeleccion(SeleccionP s);
+
+#endif // SELECCION_H_INCLUDED
+
+---------seleccion.c---------------------------------------------------------------------------------
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#define TAM 23
+#include "seleccion.h"
+#include "jugador.h"
+
+struct SeleccionE{
+
+    char nombre[30];
+    int rank;
+    JugadorP plantel[TAM];
+
+};
+
+
+SeleccionP cargarSeleccion(){
+
+   SeleccionP s = malloc(sizeof(struct SeleccionE));
+
+   printf("--INGRESE EL NOMBRE DE LA SELECCION: \n");
+   fflush(stdin);
+   gets(s->nombre);
+   printf("--INGRESE EL RANKING DE LA SELECCION: \n");
+   scanf("%d", &(s->rank));
+
+   for(int i=0; i<TAM; i++){
+
+    s->plantel[i]=crearJugadorSinDatos();
+   }
+
+   return s;
+
+};
+
+void mostrarSeleccion(SeleccionP s){
+
+    printf("--NOMBRE DE LA SELECCION: %s--- RANKING: %d\n", s->nombre, s->rank);
+
+    for(int i=0; i<TAM; i++){
+
+        mostrarJugador(s->plantel[i]);
+    }
+
+};
+
+int busqueda(SeleccionP s, int busco){
+
+    int pos=-1;//no hay mas espacio
+
+    for(int i=0; i<TAM; i++){
+
+        if(getNum(s->plantel[i])==busco){
+
+            pos=i;
+            i= TAM+1;
+        }
+    }
+
+    return pos;
+
+};
+
+void agregarJugador(SeleccionP s){
+
+    int posVacia=busqueda(s, -1);
+
+    if(posVacia != -1){
+
+        s->plantel[posVacia]=crearJugador();
+    }
+
+};
+
+void borrarJugador(SeleccionP s, int cam){
+
+    int posAborrar=busqueda(s, cam);
+
+    if(posAborrar != -1){
+        setNombre(s->plantel[posAborrar], "NADIE");
+        setNum(s->plantel[posAborrar], -1);
+
+        //otra alternativa
+
+        //s->plantel[posAborrar]=crearJugadorSinDatos();
+    }
+
+
+};
+
+void ordenarJugadores(SeleccionP s){
+
+     JugadorP aux;
+
+     for(int i=0; i<TAM; i++){
+
+        for(int j=0; j<TAM-1; j++){
+
+            if(getNum(s->plantel[j]) > getNum(s->plantel[j+1])){
+
+                aux=s->plantel[j];
+                s->plantel[j]=s->plantel[j+1];
+                s->plantel[j+1]=aux;
+            }
+        }
+     }
+
+};
+
+void destruirSeleccion(SeleccionP s){
+
+     for(int i=0; i<TAM; i++){
+        destruirJugador(s->plantel[i]);
+     }
+
+
+     free(s);
+
+};
+
+
+-------------jugador.h-------------------------------------------------------------------------------
+
+#ifndef JUGADOR_H_INCLUDED
+#define JUGADOR_H_INCLUDED
+
+struct JugaroE;
+
+typedef struct JugadorE * JugadorP;
+
+void mostrarJugador(JugadorP j);
+JugadorP crearJugador();
+
+JugadorP crearJugadorSinDatos();
+
+int getNum(JugadorP j);
+
+void setNum(JugadorP j, int nuevoNumero);
+void setNombre(JugadorP j, char nuevoNombre[30]);
+
+void destruirJugador(JugadorP j);
+
+#endif // JUGADOR_H_INCLUDED 
+
+--------------jugador.c------------------------------------------------------------------------------
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include "jugador.h"
+
+struct JugadorE{
+
+   char nombre[30];
+   int num;
+
+};
+
+JugadorP crearJugador(){
+
+  JugadorP j = malloc(sizeof(struct JugadorE));
+
+  printf("--INGRESE EL NOMBRE DEL JUGADOR--\n");
+  fflush(stdin);
+  gets(j->nombre);
+  printf("--INGRESE EL NUMERO DE CAMISETA DEL JUGADOR--\n");
+  scanf("%d", &(j->num));
+
+
+  return j;
+
+};
+
+void mostrarJugador(JugadorP j){
+
+    if(j->num != -1){
+
+      printf("--NOMBRE DEL JUGADOR: %s", j->nombre);
+      printf("--NUMERO DE CAMISETA: %d\n", j->num);
+
+    }
+
+};
+
+JugadorP crearJugadorSinDatos(){
+
+   JugadorP j = malloc(sizeof(struct JugadorE));
+
+   j->num=-1;
+   strcpy(j->nombre, "NADIE");
+
+   return j;
+
+};
+
+int getNum(JugadorP j){
+
+    return j->num;
+
+};
+
+void setNum(JugadorP j, int nuevoNumero){
+
+    j->num=nuevoNumero;
+};
+void setNombre(JugadorP j, char nuevoNombre[30]){
+
+    strcpy(j->nombre, nuevoNombre);
+};
+
+
+void destruirJugador(JugadorP j){
+
+     free(j);
+
+};
